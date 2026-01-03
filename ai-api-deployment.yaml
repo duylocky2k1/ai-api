@@ -1,0 +1,49 @@
+apiVersion: apps/v1 #phiên bản API để tạo Deployment
+kind: Deployment #service lâu dài, đây gọi là desired state 
+metadata: 
+  name: ai-api
+spec:
+  replicas: 1  #số bản sao của pod chạy song song (để tăng khả năng chịu lỗi và tải)
+  selector:
+    matchLabels: # Deployment quản lí pod thông qua label,  
+    # selector này phải khớp với template.metadata.labels bên dưới 
+      app: ai-api
+  template:  # pod sinh ra từ template này 
+    metadata:
+      labels:
+        app: ai-api
+    spec:
+      containers:
+        - name: ai-api
+          image: ai-api:latest 
+          imagePullPolicy: IfNotPresent # chỉ kéo image nếu chưa có trong node
+
+          envFrom:
+          - configMapRef:
+              name: ai-api-config
+          - secretRef:
+              name: ai-api-secret
+
+          ports:
+            - containerPort: 8000  
+            #cổng mà container lắng nghe, khác với mở port ra ngoài (nếu có) qua Service
+
+          resources: # giới hạn tài nguyên cho container
+            requests: # tài nguyên yêu cầu tối thiểu
+              cpu: "100m"
+              memory: "128Mi"
+            limits: # tài nguyên tối đa có thể sử dụng
+              cpu: "500m"
+              memory: "256Mi"
+
+
+          env: # biến môi trường cho container
+            - name: APP_NAME
+              value: "AI API on Kubernetes"
+
+          readinessProbe: # k8s kiểm tra xem container đã sẵn sàng nhận traffic chưa
+            httpGet: # sử dụng HTTP GET để kiểm tra
+              path: /health # dựa vào health endpoint để kiểm tra
+              port: 8000
+            initialDelaySeconds: 5 # đợi 5 giây sau khi container khởi động rồi mới bắt đầu kiểm tra
+            periodSeconds: 10 # kiểm tra mỗi 10 giây

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap # cấu hình không nhạy cảm cho ứng dụng
+metadata:
+  name: ai-api-config
+data:
+  APP_NAME: "AI API from ConfigMap" # tên ứng dụng
+  LOG_LEVEL: "INFO" # mức độ ghi log
