@@ -27,7 +27,7 @@ jobs:  # Định nghĩa các job trong workflow
         uses: docker/build-push-action@v5  
         # Sử dụng action chính thức để build, tag và push image Docker 
         with:
-          context: ./ai-api  # Đường dẫn đến thư mục chứa Dockerfile của AI API
+          context: .  # Đường dẫn đến thư mục chứa Dockerfile của AI API
           push: true  # Bật tính năng đẩy image lên Docker Hub
           tags: | # Định nghĩa thẻ (tags) cho image
             ${{ secrets.DOCKER_USERNAME }}/ai-api:${{ github.sha }} 
